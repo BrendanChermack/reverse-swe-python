@@ -1,0 +1,30 @@
+{
+    "data": {
+        "attributes": {
+           "date": 1529650800,
+             "results": {
+                "<string>": {
+                  "category": "Dangerous",
+                  "engine_name": "Windows",
+                  "engine_version": "20.1",
+                  "engine_update": "I dont know",
+                  "method": "thingy",
+                  "result": "this thing is dangerous"
+              },
+              "stats": {
+                  "confirmed-timeout": 10,
+                     "failure": 3,
+                    "harmless": 74,
+                    "malicious": 39,
+                    "suspicious": 57,
+                    "timeout": 9,
+                     "type-unsupported": 1,
+                    "undetected": 5
+              },
+              "status": "Buffering"      
+            },
+        "id": "the malware ID",
+        "type": "analysis"
+        }
+    }
+}
