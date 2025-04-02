@@ -1,52 +1,123 @@
 import json
 import tkinter as tk
-from tkinter import filedialog, ttk
+from tkinter import scrolledtext, filedialog
+from mal_input import mal_uploader, sha256_input
 
-def upload_file():
+
+def select_file():
     file_path = filedialog.askopenfilename()
     if file_path:
-        with open(file_path, 'r') as file:
-            try:
-                data = json.load(file)
-                display_json_data(data)
-            except json.JSONDecodeError:
-                label.config(text="Invalid JSON file")
+        file_entry.delete(0, tk.END)
+        file_entry.insert(0, file_path)
+        print("Selected file:", file_path)
 
-def display_json_data(data):
-    attributes = data.get("data", {}).get("attributes", {})
-    stats = attributes.get("results", {}).get("stats", {})
-    sh_key = attributes.get("id", "N/A")
-    malicious = stats.get("malicious", 0)
-    suspicious = stats.get("suspicious", 0)
-    undetected = stats.get("undetected", 0)
+def submit_credentials():
+    file_path = file_entry.get()
+    password = password_entry.get()
+    process_credentials(file_path, password)
+
+def process_credentials(file_path, password):
+    print("File Path: ", file_path)
+    print("Password: ", password)
+
+    json_malware_data = json.loads(mal_uploader(file_path, password))
+    stats = json_malware_data["data"]["attributes"]["stats"]
+    results = json_malware_data["data"]["attributes"]["results"]
+    sh_key = json_malware_data["meta"]["file_info"].get("sha256", "N/A")
     
-    label.config(text=f"SH Key: {sh_key}\nMalicious: {malicious}\nSuspicious: {suspicious}\nUndetected: {undetected}")
+    # Display stats
+    tk.Label(root, text="VirusTotal Scan Summary", font=("Arial", 14, "bold")).pack()
+    tk.Label(root, text=f"SH Key: {sh_key}", font=("Arial", 10, "bold")).pack(pady=5)
+    tk.Label(root, text=f"Harmless: {stats['harmless']}").pack()
+    tk.Label(root, text=f"Malicious: {stats['malicious']}").pack()
+    tk.Label(root, text=f"Suspicious: {stats['suspicious']}").pack()
+    tk.Label(root, text=f"Undetected: {stats['undetected']}").pack()
+    tk.Label(root, text=f"Failures: {stats['failure']}").pack()
 
-def on_button_click():
-    print("Button Clicked!")
+    # Display detailed results
+    text_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=60, height=10)
+    text_area.pack(pady=10)
+    text_area.insert(tk.INSERT, "Antivirus Scan Results:\n\n")
+    for engine, result in results.items():
+        text_area.insert(tk.INSERT, f"{engine}: {result['result']} ({result['category']})\n")
+    text_area.config(state=tk.DISABLED)  # Make text area read-only
 
-# Create the main window
+    
+    print(json_malware_data)
+
+def submit_sha():
+    sha = sha_entry.get()
+    process_sha(sha)
+
+
+def process_sha(sha):
+    print("SHA256: ", sha)
+    json_malware_data = json.loads(sha256_input(sha))
+    print(json.dumps(json_malware_data, indent=4))
+    sh_attributes = json_malware_data["data"]["attributes"]
+    sh_stats = json_malware_data["data"]["attributes"]["last_analysis_stats"]
+    sh_results = json_malware_data["data"]["attributes"]["last_analysis_results"]
+    
+    # Display stats
+    tk.Label(root, text="VirusTotal Scan Summary", font=("Arial", 14, "bold")).pack()
+    tk.Label(root, text=f"SH Key: {sha}", font=("Arial", 10, "bold")).pack(pady=5)
+    tk.Label(root, text=f"Names: {sh_attributes['names']}").pack()
+    tk.Label(root, text=f"Type_tags: {sh_attributes['type_tags']}").pack()
+    tk.Label(root, text=f"Names: {sh_stats['harmless']}").pack()
+    tk.Label(root, text=f"Malicious: {sh_stats['malicious']}").pack()
+    tk.Label(root, text=f"Suspicious: {sh_stats['suspicious']}").pack()
+    tk.Label(root, text=f"Undetected: {sh_stats['undetected']}").pack()
+    tk.Label(root, text=f"Failures: {sh_stats['failure']}").pack()
+
+    # Display detailed scan results in a scrolled text area
+    text_area = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=60, height=10)
+    text_area.pack(pady=10)
+    text_area.insert(tk.INSERT, "Antivirus Scan Results:\n\n")
+    
+    for engine, result in sh_results.items():
+        detection = result.get("result", "No detection")
+        category = result.get("category", "N/A")
+        text_area.insert(tk.INSERT, f"{engine}: {detection} ({category})\n")
+    
+    text_area.config(state=tk.DISABLED)  # Make text area read-only
+    
+    print(json_malware_data)
+
+
+# Create GUI window
 root = tk.Tk()
-root.title("File Upload GUI")
-root.geometry("450x300")
-root.configure(bg="#f0f0f0")
+root.title("VirusTotal Scan Results")
+root.geometry("500x400")
 
-# Styling
-style = ttk.Style()
-style.configure("TButton", font=("Arial", 12), padding=10)
-style.configure("TLabel", font=("Arial", 11), background="#f0f0f0")
+# Button to select file
+select_button = tk.Button(root, text="Select File", command=select_file)
+select_button.pack(pady=5)
 
-# Upload Button
-upload_btn = ttk.Button(root, text="Upload File", command=upload_file)
-upload_btn.pack(pady=15)
+# Entry field to display file path
+file_entry = tk.Entry(root, width=50)
+file_entry.pack(pady=5)
 
-# Label to show selected file
-label = ttk.Label(root, text="No file selected", wraplength=400)
-label.pack(pady=10)
+# Password entry field
+tk.Label(root, text="Enter Password:").pack()
+password_entry = tk.Entry(root, width=50, show="*")
+password_entry.pack(pady=5)
 
-# Another Button
-action_btn = ttk.Button(root, text="Click Me", command=on_button_click)
-action_btn.pack(pady=10)
+def print_password():
+    print("Entered Password:", password_entry.get())
 
-# Run the application
+# Submit button
+password_button = tk.Button(root, text="Submit Password", command=submit_credentials)
+password_button.pack(pady=5)
+
+
+# SHA256 entry field
+tk.Label(root, text="Enter SHA256:").pack()
+sha_entry = tk.Entry(root, width=50)
+sha_entry.pack(pady=5)
+
+# Submit button
+sha_button = tk.Button(root, text="Submit SHA256", command=submit_sha)
+sha_button.pack(pady=5)
+
+# Run GUI
 root.mainloop()

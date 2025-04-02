@@ -17,13 +17,13 @@ def mal_uploader(mal_file_path: str, password=None):
       files = { "file": ("Mal1.zip", f, "application/x-zip-compressed") }
       response = requests.post(url, headers=headers, files=files, data=payload)
 
-  print(response.text)
+  # print(response.text)
 
   data = response.json()
   url = data["data"]["links"]["self"]
 
   response = requests.get(url, headers=headers)
-  print(response.text)
+  # print(response.text)
   return response.text
 
 res = mal_uploader("./malicious-files/Mal1.zip", "ia400")
@@ -36,6 +36,6 @@ def sha256_input(sha256: str):
     "x-apikey": os.getenv("VT_API_KEY") 
   }
   response = requests.get(url, headers=headers)
-  return response
+  return response.text
 response = sha256_input("5f46cb0f2441ae72c3ac199cb234adb0e519b8fbf1669841c56bc9ce5a119309")
-print(response.text)
+print(response)
