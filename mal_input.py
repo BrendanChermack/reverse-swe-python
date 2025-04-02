@@ -2,8 +2,6 @@ import os, json
 import requests
 from dotenv import load_dotenv
 
-
-
 def mal_uploader(mal_file_path: str, password=None):
   load_dotenv()
 
@@ -30,3 +28,14 @@ def mal_uploader(mal_file_path: str, password=None):
 
 res = mal_uploader("./malicious-files/Mal1.zip", "ia400")
 print(res)
+
+def sha256_input(sha256: str):
+  url = f"https://www.virustotal.com/api/v3/files/{sha256}"
+  headers = {
+    "accept": "application/json",
+    "x-apikey": os.getenv("VT_API_KEY") 
+  }
+  response = requests.get(url, headers=headers)
+  return response
+response = sha256_input("5f46cb0f2441ae72c3ac199cb234adb0e519b8fbf1669841c56bc9ce5a119309")
+print(response.text)
