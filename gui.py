@@ -26,7 +26,7 @@ def process_credentials(file_path, password):
     results = data["data"]["attributes"]["results"]
     sh_key  = data["meta"]["file_info"].get("sha256", "N/A")
 
-    tk.Label(results_frame, text="Scan Summary",
+    tk.Label(results_frame, text="ProtectU",
              font=("Arial", 14, "bold")).pack(anchor="center")
     tk.Label(results_frame, text=f"SHA‑256: {sh_key}",
              font=("Arial", 10, "bold")).pack(anchor="center", pady=5)
@@ -97,7 +97,7 @@ def process_url(url):
 
 # ---------- GUI ----------
 root = tk.Tk()
-root.title("VirusTotal Scan Results")
+root.title("ProtectU")
 root.geometry("920x720")
 
 # Controls -------------------------------------------------
