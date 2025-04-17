@@ -27,7 +27,7 @@ def mal_uploader(mal_file_path: str, password=None):
   return response.text
 
 res = mal_uploader("./malicious-files/Mal1.zip", "ia400")
-print(res)
+# print(res)
 
 def sha256_input(sha256: str):
   url = f"https://www.virustotal.com/api/v3/files/{sha256}"
@@ -38,4 +38,4 @@ def sha256_input(sha256: str):
   response = requests.get(url, headers=headers)
   return response.text
 response = sha256_input("5f46cb0f2441ae72c3ac199cb234adb0e519b8fbf1669841c56bc9ce5a119309")
-print(response)
+# print(response)

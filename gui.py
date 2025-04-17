@@ -2,6 +2,7 @@ import json
 import tkinter as tk
 from tkinter import scrolledtext, filedialog
 from mal_input import mal_uploader, sha256_input
+from url_scanner import url_scanning
 
 
 def select_file():
@@ -83,11 +84,36 @@ def process_sha(sha):
     
     print(json_malware_data)
 
+def submit_url():
+    url = url_entry.get()
+    process_url(url)
+
+def process_url(url):
+    print("URL:", url)
+    
+    # Load data
+    json_malware_data = json.loads(url_scanning(url))
+    print(json.dumps(json_malware_data, indent=4))
+    
+    # Extract stats
+    url_stats = json_malware_data["data"]["attributes"]["stats"]
+    
+    # GUI output
+    tk.Label(root, text="VirusTotal Scan Summary", font=("Arial", 14, "bold")).pack()
+    tk.Label(root, text=f"URL: {url}", font=("Arial", 10, "bold")).pack(pady=5)
+    tk.Label(root, text="Stats:").pack(pady=5)
+    tk.Label(root, text=f"Malicious: {url_stats['malicious']}").pack()
+    tk.Label(root, text=f"Suspicious: {url_stats['suspicious']}").pack()
+    tk.Label(root, text=f"Undetected: {url_stats['undetected']}").pack()
+    tk.Label(root, text=f"Harmless: {url_stats['harmless']}").pack()
+    tk.Label(root, text=f"Timeout: {url_stats['timeout']}").pack()
+
+    print(json_malware_data)
 
 # Create GUI window
 root = tk.Tk()
 root.title("VirusTotal Scan Results")
-root.geometry("500x400")
+root.geometry("900x700")
 
 # Button to select file
 select_button = tk.Button(root, text="Select File", command=select_file)
@@ -118,6 +144,17 @@ sha_entry.pack(pady=5)
 # Submit button
 sha_button = tk.Button(root, text="Submit SHA256", command=submit_sha)
 sha_button.pack(pady=5)
+
+
+# SHA256 entry field
+tk.Label(root, text="Enter Url:").pack()
+url_entry = tk.Entry(root, width=50)
+url_entry.pack(pady=5)
+
+# Submit button
+url_button = tk.Button(root, text="Submit Url", command=submit_url)
+url_button.pack(pady=5)
+
 
 # Run GUI
 root.mainloop()
